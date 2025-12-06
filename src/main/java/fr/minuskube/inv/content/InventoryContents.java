@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -55,6 +57,100 @@ public interface InventoryContents {
   InventoryContents fillRect(SlotPos fromPos, SlotPos toPos, ClickableItem item);
 
   InventoryContents fillChar(char character, ClickableItem item);
+
+  // ItemStack overloads for simplified API
+  default InventoryContents set(int row, int column, ItemStack item) {
+    return set(row, column, ClickableItem.empty(item));
+  }
+
+  default InventoryContents set(
+      int row, int column, ItemStack item, Consumer<InventoryClickEvent> consumer) {
+    return set(row, column, ClickableItem.of(item, consumer));
+  }
+
+  default InventoryContents set(SlotPos slotPos, ItemStack item) {
+    return set(slotPos, ClickableItem.empty(item));
+  }
+
+  default InventoryContents set(
+      SlotPos slotPos, ItemStack item, Consumer<InventoryClickEvent> consumer) {
+    return set(slotPos, ClickableItem.of(item, consumer));
+  }
+
+  default InventoryContents add(ItemStack item) {
+    return add(ClickableItem.empty(item));
+  }
+
+  default InventoryContents add(ItemStack item, Consumer<InventoryClickEvent> consumer) {
+    return add(ClickableItem.of(item, consumer));
+  }
+
+  default InventoryContents fill(ItemStack item) {
+    return fill(ClickableItem.empty(item));
+  }
+
+  default InventoryContents fill(ItemStack item, Consumer<InventoryClickEvent> consumer) {
+    return fill(ClickableItem.of(item, consumer));
+  }
+
+  default InventoryContents fillRow(int row, ItemStack item) {
+    return fillRow(row, ClickableItem.empty(item));
+  }
+
+  default InventoryContents fillRow(
+      int row, ItemStack item, Consumer<InventoryClickEvent> consumer) {
+    return fillRow(row, ClickableItem.of(item, consumer));
+  }
+
+  default InventoryContents fillColumn(int column, ItemStack item) {
+    return fillColumn(column, ClickableItem.empty(item));
+  }
+
+  default InventoryContents fillColumn(
+      int column, ItemStack item, Consumer<InventoryClickEvent> consumer) {
+    return fillColumn(column, ClickableItem.of(item, consumer));
+  }
+
+  default InventoryContents fillBorders(ItemStack item) {
+    return fillBorders(ClickableItem.empty(item));
+  }
+
+  default InventoryContents fillBorders(ItemStack item, Consumer<InventoryClickEvent> consumer) {
+    return fillBorders(ClickableItem.of(item, consumer));
+  }
+
+  default InventoryContents fillRect(
+      int fromRow, int fromColumn, int toRow, int toColumn, ItemStack item) {
+    return fillRect(fromRow, fromColumn, toRow, toColumn, ClickableItem.empty(item));
+  }
+
+  default InventoryContents fillRect(
+      int fromRow,
+      int fromColumn,
+      int toRow,
+      int toColumn,
+      ItemStack item,
+      Consumer<InventoryClickEvent> consumer) {
+    return fillRect(fromRow, fromColumn, toRow, toColumn, ClickableItem.of(item, consumer));
+  }
+
+  default InventoryContents fillRect(SlotPos fromPos, SlotPos toPos, ItemStack item) {
+    return fillRect(fromPos, toPos, ClickableItem.empty(item));
+  }
+
+  default InventoryContents fillRect(
+      SlotPos fromPos, SlotPos toPos, ItemStack item, Consumer<InventoryClickEvent> consumer) {
+    return fillRect(fromPos, toPos, ClickableItem.of(item, consumer));
+  }
+
+  default InventoryContents fillChar(char character, ItemStack item) {
+    return fillChar(character, ClickableItem.empty(item));
+  }
+
+  default InventoryContents fillChar(
+      char character, ItemStack item, Consumer<InventoryClickEvent> consumer) {
+    return fillChar(character, ClickableItem.of(item, consumer));
+  }
 
   <T> T property(String name);
 
