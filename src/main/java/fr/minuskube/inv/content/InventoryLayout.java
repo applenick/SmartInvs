@@ -5,16 +5,15 @@ import java.util.Set;
 
 public interface InventoryLayout {
 
-    boolean isValidSlot(int row, int column);
+  boolean isValidSlot(int row, int column);
 
-    Set<SlotPos> getValidSlots();
+  Set<SlotPos> getValidSlots();
 
-    int toLinearIndex(int row, int column);
+  int toLinearIndex(int row, int column);
 
-    Optional<SlotPos> fromLinearIndex(int index);
+  Optional<SlotPos> fromLinearIndex(int index);
 
-    int getRows();
+  int getRows();
 
-    int getColumns();
-
+  int getColumns();
 }

@@ -1,119 +1,119 @@
 package fr.minuskube.inv.content;
 
 import fr.minuskube.inv.ClickableItem;
-
 import java.util.Arrays;
 
 public interface Pagination {
 
-    ClickableItem[] getPageItems();
+  ClickableItem[] getPageItems();
 
-    int getPage();
-    Pagination page(int page);
+  int getPage();
 
-    boolean isFirst();
-    boolean isLast();
+  Pagination page(int page);
 
-    Pagination first();
-    Pagination previous();
-    Pagination next();
-    Pagination last();
+  boolean isFirst();
 
-    Pagination addToIterator(SlotIterator iterator);
+  boolean isLast();
 
-    Pagination setItems(ClickableItem... items);
-    Pagination setItemsPerPage(int itemsPerPage);
+  Pagination first();
 
+  Pagination previous();
 
-    class Impl implements Pagination {
+  Pagination next();
 
-        private int currentPage;
+  Pagination last();
 
-        private ClickableItem[] items = new ClickableItem[0];
-        private int itemsPerPage = 5;
+  Pagination addToIterator(SlotIterator iterator);
 
-        @Override
-        public ClickableItem[] getPageItems() {
-            return Arrays.copyOfRange(items,
-                    currentPage * itemsPerPage,
-                    Math.min((currentPage + 1) * itemsPerPage, items.length));
-        }
+  Pagination setItems(ClickableItem... items);
 
-        @Override
-        public int getPage() {
-            return this.currentPage;
-        }
+  Pagination setItemsPerPage(int itemsPerPage);
 
-        @Override
-        public Pagination page(int page) {
-            this.currentPage = page;
-            return this;
-        }
+  class Impl implements Pagination {
 
-        @Override
-        public boolean isFirst() {
-            return this.currentPage == 0;
-        }
+    private int currentPage;
 
-        @Override
-        public boolean isLast() {
-            int pageCount = (int) Math.ceil((double) this.items.length / this.itemsPerPage);
-            return this.currentPage >= pageCount - 1;
-        }
+    private ClickableItem[] items = new ClickableItem[0];
+    private int itemsPerPage = 5;
 
-        @Override
-        public Pagination first() {
-            this.currentPage = 0;
-            return this;
-        }
-
-        @Override
-        public Pagination previous() {
-            if(!isFirst())
-                this.currentPage--;
-
-            return this;
-        }
-
-        @Override
-        public Pagination next() {
-            if(!isLast())
-                this.currentPage++;
-
-            return this;
-        }
-
-        @Override
-        public Pagination last() {
-            int pageCount = (int) Math.ceil((double) this.items.length / this.itemsPerPage);
-            this.currentPage = Math.max(0, pageCount - 1);
-            return this;
-        }
-
-        @Override
-        public Pagination addToIterator(SlotIterator iterator) {
-            for(ClickableItem item : getPageItems()) {
-                iterator.next().set(item);
-
-                if(iterator.ended())
-                    break;
-            }
-
-            return this;
-        }
-
-        @Override
-        public Pagination setItems(ClickableItem... items) {
-            this.items = items;
-            return this;
-        }
-
-        @Override
-        public Pagination setItemsPerPage(int itemsPerPage) {
-            this.itemsPerPage = itemsPerPage;
-            return this;
-        }
-
+    @Override
+    public ClickableItem[] getPageItems() {
+      return Arrays.copyOfRange(
+          items,
+          currentPage * itemsPerPage,
+          Math.min((currentPage + 1) * itemsPerPage, items.length));
     }
 
+    @Override
+    public int getPage() {
+      return this.currentPage;
+    }
+
+    @Override
+    public Pagination page(int page) {
+      this.currentPage = page;
+      return this;
+    }
+
+    @Override
+    public boolean isFirst() {
+      return this.currentPage == 0;
+    }
+
+    @Override
+    public boolean isLast() {
+      int pageCount = (int) Math.ceil((double) this.items.length / this.itemsPerPage);
+      return this.currentPage >= pageCount - 1;
+    }
+
+    @Override
+    public Pagination first() {
+      this.currentPage = 0;
+      return this;
+    }
+
+    @Override
+    public Pagination previous() {
+      if (!isFirst()) this.currentPage--;
+
+      return this;
+    }
+
+    @Override
+    public Pagination next() {
+      if (!isLast()) this.currentPage++;
+
+      return this;
+    }
+
+    @Override
+    public Pagination last() {
+      int pageCount = (int) Math.ceil((double) this.items.length / this.itemsPerPage);
+      this.currentPage = Math.max(0, pageCount - 1);
+      return this;
+    }
+
+    @Override
+    public Pagination addToIterator(SlotIterator iterator) {
+      for (ClickableItem item : getPageItems()) {
+        iterator.next().set(item);
+
+        if (iterator.ended()) break;
+      }
+
+      return this;
+    }
+
+    @Override
+    public Pagination setItems(ClickableItem... items) {
+      this.items = items;
+      return this;
+    }
+
+    @Override
+    public Pagination setItemsPerPage(int itemsPerPage) {
+      this.itemsPerPage = itemsPerPage;
+      return this;
+    }
+  }
 }

@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id 'signing'
+    id 'com.diffplug.spotless' version "8.1.0"
 }
 
 group = 'fr.minuskube.inv'
@@ -9,7 +9,7 @@ version = '1.2.7-OCC'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 
     withSourcesJar()
@@ -25,6 +25,20 @@ repositories {
 
 dependencies {
     compileOnly 'app.ashcon:sportpaper:1.8.8-R0.1-SNAPSHOT'
+}
+
+spotless {
+    java {
+        target 'src/**/*.java'
+        googleJavaFormat()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+tasks.named('build') {
+    dependsOn 'spotlessApply'
 }
 
 tasks.withType(Javadoc).configureEach {
