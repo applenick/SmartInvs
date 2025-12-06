@@ -36,7 +36,7 @@ public interface Pagination {
         public ClickableItem[] getPageItems() {
             return Arrays.copyOfRange(items,
                     currentPage * itemsPerPage,
-                    (currentPage + 1) * itemsPerPage);
+                    Math.min((currentPage + 1) * itemsPerPage, items.length));
         }
 
         @Override
@@ -85,7 +85,8 @@ public interface Pagination {
 
         @Override
         public Pagination last() {
-            this.currentPage = this.items.length / this.itemsPerPage;
+            int pageCount = (int) Math.ceil((double) this.items.length / this.itemsPerPage);
+            this.currentPage = Math.max(0, pageCount - 1);
             return this;
         }
 
