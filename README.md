@@ -1,12 +1,7 @@
-![SmartInvs Logo](http://minuskube.fr/img/smart-invs/smart_invs.png)
-
-[![License](https://img.shields.io/github/license/minuskube/smartinvs.svg?style=flat-square)](https://github.com/MinusKube/SmartInvs/blob/master/LICENSE.md)
-[![Javadocs](https://img.shields.io/maven-central/v/fr.minuskube.inv/smart-invs.svg?label=javadoc&style=flat-square)](https://javadoc.io/doc/fr.minuskube.inv/smart-invs)
-
-# SmartInvs
+# SmartInvs (Overcast Community Fork)
 Advanced Inventory API for your Minecraft Bukkit plugins.
 
-*Tested Minecraft versions: 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14*  
+*Tested Minecraft versions: 1.7, 1.8, 1.9, 1.10, 1.11, 1.12, 1.13, 1.14*
 **You can use this as a Plugin, or use it as a library** (see [the docs](https://minuskube.gitbook.io/smartinvs/))
 
 ## Features
@@ -21,25 +16,24 @@ Advanced Inventory API for your Minecraft Bukkit plugins.
 * Actions when player clicks on an item
 * Update methods to edit the content of the inventory every tick
 
-## Docs
-[Click here to read the docs on Gitbook](https://minuskube.gitbook.io/smartinvs/)
+## Exclusive to this fork
+* **Character Mask Layouts** - Define inventory layouts using character mask patterns, where each character represents a specific item.
+
 
 ## Usage
 To use the SmartInvs API, either:
 - Put it in the `plugins` folder of your server, add it to your dependencies in your plugin.yml (e.g. `depend: [SmartInvs]`) and add it to the dependencies in your IDE.
 - Put it inside your plugin jar, initialize an `InventoryManager` in your plugin (don't forget to call the `init()` method), and add a `.manager(invManager)` to your SmartInventory Builders.
 
-You can download the latest version on the [Releases page](https://github.com/MinusKube/SmartInvs/releases) on Github.
-
 You can also use a build system:
 ### Gradle
 ```gradle
 repositories {
-    mavenCentral()
+    maven { url 'https://repo.pgm.fyi/snapshots' }
 }
 
 dependencies {
-    compile 'fr.minuskube.inv:smart-invs:1.2.7'
+    compile 'fr.minuskube.inv:smart-invs:1.2.7-OCC'
 }
 ```
 
@@ -48,12 +42,38 @@ dependencies {
 <dependency>
   <groupId>fr.minuskube.inv</groupId>
   <artifactId>smart-invs</artifactId>
-  <version>1.2.7</version>
+  <version>1.2.7-OCC</version>
 </dependency>
 ```
 
-## TODO
-* Add some Javadocs
+## Character Mask Layouts
 
-## Issues
-If you have a problem with the API, or you want to request a feature, make an issue [here](https://github.com/MinusKube/SmartInvs/issues).
+Define inventory layouts visually using character patterns, where each character represents a specific region or slot type.
+
+```java
+SmartInventory.builder()
+    .id("my-menu")
+    .title("My Menu")
+    .layout(new CharacterMaskLayout(
+        "#########",
+        "#   A   #",
+        "#  BBB  #",
+        "#   C   #",
+        "### X ###"
+    ))
+    .provider((player, contents) -> {
+        contents.fillChar('#', borderItem);      // Fill borders
+        contents.fillChar('A', infoButton);      // Info slot
+        contents.fillChar('B', actionButtons);   // Action slots
+        contents.fillChar('C', settingsButton);  // Settings slot
+        contents.fillChar('X', closeButton);     // Close button
+    })
+    .build();
+```
+
+**Key features:**
+- Space characters (`' '`) represent empty slots
+- Specific characters represent different items
+- Perfect for creating custom shapes, borders, and visual layouts
+- Speeds up development time
+- Fully backward compatible with existing code

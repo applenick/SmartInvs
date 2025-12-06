@@ -1,6 +1,9 @@
 package fr.minuskube.inv;
 
 import fr.minuskube.inv.content.InventoryContents;
+import fr.minuskube.inv.content.InventoryLayout;
+import fr.minuskube.inv.content.RectangularLayout;
+import fr.minuskube.inv.content.SlotPos;
 import fr.minuskube.inv.opener.ChestInventoryOpener;
 import fr.minuskube.inv.opener.InventoryOpener;
 import fr.minuskube.inv.opener.SpecialInventoryOpener;
@@ -144,7 +147,7 @@ public class InventoryManager {
                     e.setCancelled(true);
                     return;
                 }
-  
+
                 if (e.getAction() == InventoryAction.NOTHING && e.getClick() != ClickType.MIDDLE) {
                     e.setCancelled(true);
                     return;
@@ -154,13 +157,20 @@ public class InventoryManager {
             if (clickedInventory == p.getOpenInventory().getTopInventory()) {
                 e.setCancelled(true);
 
-                int row = e.getSlot() / 9;
-                int column = e.getSlot() % 9;
+                SmartInventory inv = inventories.get(p.getUniqueId());
+                InventoryLayout layout = inv.getLayout().orElse(new RectangularLayout(inv.getRows(), inv.getColumns()));
+
+                Optional<SlotPos> posOpt = layout.fromLinearIndex(e.getSlot());
+
+                if (!posOpt.isPresent())
+                    return;
+
+                SlotPos pos = posOpt.get();
+                int row = pos.getRow();
+                int column = pos.getColumn();
 
                 if (row < 0 || column < 0)
                     return;
-
-                SmartInventory inv = inventories.get(p.getUniqueId());
 
                 if (row >= inv.getRows() || column >= inv.getColumns())
                     return;

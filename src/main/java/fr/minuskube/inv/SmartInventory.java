@@ -1,7 +1,9 @@
 package fr.minuskube.inv;
 
 import fr.minuskube.inv.content.InventoryContents;
+import fr.minuskube.inv.content.InventoryLayout;
 import fr.minuskube.inv.content.InventoryProvider;
+import fr.minuskube.inv.content.RectangularLayout;
 import fr.minuskube.inv.opener.InventoryOpener;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -24,6 +26,7 @@ public class SmartInventory {
 
     private InventoryProvider provider;
     private SmartInventory parent;
+    private InventoryLayout layout;
 
     private List<InventoryListener<? extends Event>> listeners;
     private InventoryManager manager;
@@ -45,7 +48,8 @@ public class SmartInventory {
             this.manager.setInventory(player, null);
         });
 
-        InventoryContents contents = new InventoryContents.Impl(this, player.getUniqueId());
+        InventoryLayout effectiveLayout = this.layout != null ? this.layout : new RectangularLayout(this.rows, this.columns);
+        InventoryContents contents = new InventoryContents.Impl(this, player.getUniqueId(), effectiveLayout);
         contents.pagination().page(page);
 
         this.manager.setContents(player, contents);
@@ -95,6 +99,7 @@ public class SmartInventory {
 
     public InventoryProvider getProvider() { return provider; }
     public Optional<SmartInventory> getParent() { return Optional.ofNullable(parent); }
+    public Optional<InventoryLayout> getLayout() { return Optional.ofNullable(layout); }
 
     public InventoryManager getManager() { return manager; }
 
@@ -113,6 +118,7 @@ public class SmartInventory {
         private InventoryManager manager;
         private InventoryProvider provider;
         private SmartInventory parent;
+        private InventoryLayout layout;
 
         private List<InventoryListener<? extends Event>> listeners = new ArrayList<>();
 
@@ -164,6 +170,15 @@ public class SmartInventory {
             return this;
         }
 
+        public Builder layout(InventoryLayout layout) {
+            this.layout = layout;
+            if (layout != null) {
+                this.rows = layout.getRows();
+                this.columns = layout.getColumns();
+            }
+            return this;
+        }
+
         public SmartInventory build() {
             if(this.provider == null)
                 throw new IllegalStateException("The provider of the SmartInventory.Builder must be set.");
@@ -183,6 +198,7 @@ public class SmartInventory {
             inv.closeable = this.closeable;
             inv.provider = this.provider;
             inv.parent = this.parent;
+            inv.layout = this.layout;
             inv.listeners = this.listeners;
 
             return inv;

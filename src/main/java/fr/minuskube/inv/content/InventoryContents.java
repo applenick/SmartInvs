@@ -46,6 +46,8 @@ public interface InventoryContents {
                                int toRow, int toColumn, ClickableItem item);
     InventoryContents fillRect(SlotPos fromPos, SlotPos toPos, ClickableItem item);
 
+    InventoryContents fillChar(char character, ClickableItem item);
+
     <T> T property(String name);
     <T> T property(String name, T def);
 
@@ -55,6 +57,7 @@ public interface InventoryContents {
 
         private SmartInventory inv;
         private UUID player;
+        private InventoryLayout layout;
 
         private ClickableItem[][] contents;
 
@@ -62,9 +65,10 @@ public interface InventoryContents {
         private Map<String, SlotIterator> iterators = new HashMap<>();
         private Map<String, Object> properties = new HashMap<>();
 
-        public Impl(SmartInventory inv, UUID player) {
+        public Impl(SmartInventory inv, UUID player, InventoryLayout layout) {
             this.inv = inv;
             this.player = player;
+            this.layout = layout;
             this.contents = new ClickableItem[inv.getRows()][inv.getColumns()];
         }
 
@@ -217,6 +221,17 @@ public interface InventoryContents {
             return fillRect(fromPos.getRow(), fromPos.getColumn(), toPos.getRow(), toPos.getColumn(), item);
         }
 
+        @Override
+        public InventoryContents fillChar(char character, ClickableItem item) {
+            if (layout instanceof CharacterMaskLayout) {
+                CharacterMaskLayout maskLayout = (CharacterMaskLayout) layout;
+                for (SlotPos pos : maskLayout.getSlotsForChar(character)) {
+                    set(pos, item);
+                }
+            }
+            return this;
+        }
+
         @SuppressWarnings("unchecked")
         @Override
         public <T> T property(String name) {
@@ -241,7 +256,10 @@ public interface InventoryContents {
                 return;
 
             Inventory topInventory = currentPlayer.getOpenInventory().getTopInventory();
-            topInventory.setItem(inv.getColumns() * row + column, item);
+            int linearIndex = layout.toLinearIndex(row, column);
+            if (linearIndex >= 0) {
+                topInventory.setItem(linearIndex, item);
+            }
         }
 
     }
