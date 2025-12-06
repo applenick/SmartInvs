@@ -89,8 +89,12 @@ public class InventoryManager {
         List<Player> list = new ArrayList<>();
 
         this.inventories.forEach((player, playerInv) -> {
-            if (inv.equals(playerInv))
-                list.add(Bukkit.getPlayer(player));
+            if (inv.equals(playerInv)) {
+                Player p = Bukkit.getPlayer(player);
+                if (p != null) {
+                    list.add(p);
+                }
+            }
         });
 
         return list;
@@ -267,7 +271,10 @@ public class InventoryManager {
                         .filter(listener -> listener.getType() == PluginDisableEvent.class)
                         .forEach(listener -> ((InventoryListener<PluginDisableEvent>) listener).accept(e));
 
-                inv.close(Bukkit.getPlayer(player));
+                Player p = Bukkit.getPlayer(player);
+                if (p != null) {
+                    inv.close(p);
+                }
             });
 
             inventories.clear();
@@ -282,6 +289,9 @@ public class InventoryManager {
         public void run() {
             new HashMap<>(inventories).forEach((uuid, inv) -> {
                 Player player = Bukkit.getPlayer(uuid);
+
+                if (player == null)
+                    return;
 
                 try {
                     inv.getProvider().update(player, contents.get(uuid));
