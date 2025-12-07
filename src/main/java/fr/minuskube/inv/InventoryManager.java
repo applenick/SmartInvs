@@ -41,6 +41,7 @@ public class InventoryManager {
 
   private Map<UUID, SmartInventory> inventories;
   private Map<UUID, InventoryContents> contents;
+  private Map<UUID, Integer> updateCounters;
 
   private List<InventoryOpener> defaultOpeners;
   private List<InventoryOpener> openers;
@@ -51,6 +52,7 @@ public class InventoryManager {
 
     this.inventories = new HashMap<>();
     this.contents = new HashMap<>();
+    this.updateCounters = new HashMap<>();
 
     this.defaultOpeners = Arrays.asList(new ChestInventoryOpener(), new SpecialInventoryOpener());
 
@@ -99,8 +101,13 @@ public class InventoryManager {
   }
 
   protected void setInventory(Player p, SmartInventory inv) {
-    if (inv == null) this.inventories.remove(p.getUniqueId());
-    else this.inventories.put(p.getUniqueId(), inv);
+    if (inv == null) {
+      this.inventories.remove(p.getUniqueId());
+      this.updateCounters.remove(p.getUniqueId());
+    } else {
+      this.inventories.put(p.getUniqueId(), inv);
+      this.updateCounters.put(p.getUniqueId(), 0);
+    }
   }
 
   public Optional<InventoryContents> getContents(Player p) {
@@ -229,6 +236,7 @@ public class InventoryManager {
 
         inventories.remove(p.getUniqueId());
         contents.remove(p.getUniqueId());
+        updateCounters.remove(p.getUniqueId());
       } else Bukkit.getScheduler().runTask(plugin, () -> p.openInventory(e.getInventory()));
     }
 
@@ -246,6 +254,7 @@ public class InventoryManager {
 
       inventories.remove(p.getUniqueId());
       contents.remove(p.getUniqueId());
+      updateCounters.remove(p.getUniqueId());
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -266,6 +275,7 @@ public class InventoryManager {
 
       inventories.clear();
       contents.clear();
+      updateCounters.clear();
     }
   }
 
@@ -276,14 +286,26 @@ public class InventoryManager {
       new HashMap<>(inventories)
           .forEach(
               (uuid, inv) -> {
-                Player player = Bukkit.getPlayer(uuid);
+                // Skip update if interval is 0 (static inventory)
+                int updateInterval = inv.getUpdateInterval();
+                if (updateInterval <= 0) return;
 
+                Player player = Bukkit.getPlayer(uuid);
                 if (player == null) return;
 
-                try {
-                  inv.getProvider().update(player, contents.get(uuid));
-                } catch (Exception e) {
-                  handleInventoryUpdateError(inv, player, e);
+                int counter = updateCounters.getOrDefault(uuid, 0);
+                counter++;
+
+                if (counter >= updateInterval) {
+                  updateCounters.put(uuid, 0);
+
+                  try {
+                    inv.getProvider().update(player, contents.get(uuid));
+                  } catch (Exception e) {
+                    handleInventoryUpdateError(inv, player, e);
+                  }
+                } else {
+                  updateCounters.put(uuid, counter);
                 }
               });
     }

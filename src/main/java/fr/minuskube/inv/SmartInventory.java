@@ -22,6 +22,7 @@ public class SmartInventory {
   private InventoryType type;
   private int rows, columns;
   private boolean closeable;
+  private int updateInterval;
 
   private InventoryProvider provider;
   private SmartInventory parent;
@@ -130,8 +131,34 @@ public class SmartInventory {
     this.closeable = closeable;
   }
 
+  public int getUpdateInterval() {
+    return updateInterval;
+  }
+
+  public void setUpdateInterval(int updateInterval) {
+    this.updateInterval = updateInterval;
+  }
+
   public InventoryProvider getProvider() {
     return provider;
+  }
+
+  public void update(Player player) {
+    Optional<InventoryContents> contentsOpt = this.manager.getContents(player);
+    if (!contentsOpt.isPresent()) return;
+
+    try {
+      this.provider.update(player, contentsOpt.get());
+    } catch (Exception e) {
+      this.manager.handleInventoryUpdateError(this, player, e);
+    }
+  }
+
+  public void updateAll() {
+    List<Player> players = this.manager.getOpenedPlayers(this);
+    for (Player player : players) {
+      update(player);
+    }
   }
 
   public Optional<SmartInventory> getParent() {
@@ -161,6 +188,7 @@ public class SmartInventory {
     private InventoryType type = InventoryType.CHEST;
     private int rows = 6, columns = 9;
     private boolean closeable = true;
+    private int updateInterval = 0;
 
     private InventoryManager manager;
     private InventoryProvider provider;
@@ -194,6 +222,11 @@ public class SmartInventory {
 
     public Builder closeable(boolean closeable) {
       this.closeable = closeable;
+      return this;
+    }
+
+    public Builder updateInterval(int updateInterval) {
+      this.updateInterval = updateInterval;
       return this;
     }
 
@@ -244,6 +277,7 @@ public class SmartInventory {
       inv.rows = this.rows;
       inv.columns = this.columns;
       inv.closeable = this.closeable;
+      inv.updateInterval = this.updateInterval;
       inv.provider = this.provider;
       inv.parent = this.parent;
       inv.layout = this.layout;
